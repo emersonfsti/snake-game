@@ -8,6 +8,15 @@ snake[0] = {
     y: 8 * box
 }
 
+// movimento
+let direction = "rigth";
+
+//variavel para drawApple
+let apple = {
+    x: Math.floor(Math.random() * 15 + 1) * box,
+    y: Math.floor(Math.random() *15 + 1) * box
+}
+
 // função Definir Campo do jogo
 function criarBG() {
     // cor da tela
@@ -15,6 +24,12 @@ function criarBG() {
     // rgb(190,220,145);
     // tamanho da tela
     context.fillRect(0,0, 16 * box, 16 * box);
+}
+// criar maça
+function drawApple() {
+    
+    context.fillStyle = "red";  
+    context.fillRect(apple.x, apple.y, box, box);
 }
 // função criar snake (cobra)
 function snakeLitle() {
@@ -24,6 +39,52 @@ function snakeLitle() {
     }
 }
 
+
+//
+document.addEventListener('keydown', update);
+
+function update(event) {
+    if(event.keyCode == 37 && direction != "right") direction = "left";
+    if(event.keyCode == 39 && direction != "left") direction = "right";
+    if(event.keyCode == 38 && direction != "down") direction = "up";
+    if(event.keyCode == 40 && direction != "up") direction = "down";
+}
+
+// função StartGame
+function startGame(params) {
+
+    // procedimento para quando sair da tela voltar para o inicio
+    if(snake[0].x > 15 * box && direction == "right") snake[0].x = 0;
+    if(snake[0].x < 0 * box && direction == "left") snake[0].x = 16 * box;
+    if(snake[0].y > 16* box && direction == "down") snake[0].y = 0;
+    if(snake[0].y < 0 * box && direction == "up") snake[0].y = 16 * box;
+
+    criarBG();
+    drawApple();
+    snakeLitle();
+    
+
+    // position start snake
+    let snakeX = snake[0].x;
+    let snakeY = snake[0].y;
+
+    //direção que incremeta 
+    if(direction == "right") snakeX += box;
+    if(direction == "left") snakeX -= box;
+    if(direction == "up") snakeY -= box;
+    if(direction == "down") snakeY += box;
+
+    snake.pop();
+
+    let newHead = {
+        x: snakeX, 
+        y: snakeY
+    }
+
+    snake.unshift(newHead);
+    
+}
+
+
 //iniciar function
-criarBG();
-snakeLitle();
+let game = setInterval(startGame, 100);
