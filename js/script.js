@@ -2,29 +2,36 @@ let canvas = document.getElementById("snake");
 let context = canvas.getContext("2d");
 let box = 32;
 // snake como array
+
 let snake = [];
 snake[0] = {
     x: 8 * box,
     y: 8 * box
 }
+//variavel placar
+let score = 0;
 
 // movimento
 let direction = "rigth";
 
 //variavel para drawApple
 let apple = {
-    x: Math.floor(Math.random() * 15 + 1) * box,
-    y: Math.floor(Math.random() *15 + 1) * box
+    x: Math.floor(Math.random() * 12 + 1) * box,
+    y: Math.floor(Math.random() *12 + 1) * box
 }
-
+function criarLimite() {
+    // cor da tela
+    context.fillStyle =  "gray";
+    context.fillRect(0,0, 16 * box, 14 * box);
+}
 // função Definir Campo do jogo
 function criarBG() {
     // cor da tela
-    context.fillStyle =  "lightgreen";
-    // rgb(190,220,145);
+    context.fillStyle =  "rgb(190,220,145)";
     // tamanho da tela
-    context.fillRect(0,0, 16 * box, 16 * box);
+    context.fillRect(32,32, 14 * box, 12 * box);
 }
+
 // criar maça
 function drawApple() {
     
@@ -53,13 +60,41 @@ function update(event) {
 // função StartGame
 function startGame(params) {
 
-    // procedimento para quando sair da tela voltar para o inicio
-    if(snake[0].x > 15 * box && direction == "right") snake[0].x = 0;
-    if(snake[0].x < 0 * box && direction == "left") snake[0].x = 16 * box;
-    if(snake[0].y > 16* box && direction == "down") snake[0].y = 0;
-    if(snake[0].y < 0 * box && direction == "up") snake[0].y = 16 * box;
+    
+    // GAme OVer limie borda
+    if(snake[0].x >= 15 * box && direction == "right") {
+        clearInterval(game);
+        alert('Game Over - Seu placar foi: ' + score);
+        snakeLitle.context.fillStyle = "gray";
+    };
+    if(snake[0].x <= 0 * box && direction == "left")  {
+        clearInterval(game);
+        alert('Game Over - Seu placar foi: ' + score);
+        snakeLitle.context.fillStyle = "gray";
+    };
+    if(snake[0].y >= 13* box && direction == "down") { 
+        clearInterval(game);
+        alert('Game Over - Seu placar foi: ' + score);
+        snakeLitle.context.fillStyle = "gray";
+    };
+    if(snake[0].y <= 0 * box && direction == "up")  { 
+        clearInterval(game);
+        alert('Game Over - Seu placar foi: ' + score);
+        snakeLitle.context.fillStyle = "gray";
+    };
 
+    // GAme OVer h=header
+    for(h = 1 ; h < snake.length; h++){
+        if(snake[0].x == snake[h].x && snake[0].y == snake[h].y){
+            clearInterval(game);
+            alert('Game Over - Seu placar foi: ' + score);
+        }
+    }
+
+
+criarLimite();
     criarBG();
+    
     drawApple();
     snakeLitle();
     
@@ -74,7 +109,15 @@ function startGame(params) {
     if(direction == "up") snakeY -= box;
     if(direction == "down") snakeY += box;
 
-    snake.pop();
+    // aumentar tamanho da cobra
+    if(snakeX != apple.x || snakeY != apple.y){ 
+        snake.pop();
+    }else{
+       apple.x =  Math.floor(Math.random() * 12 + 1) * box;
+       apple.y = Math.floor(Math.random() *12 + 1) * box;
+       score++;
+    }
+   
 
     let newHead = {
         x: snakeX, 
@@ -82,9 +125,12 @@ function startGame(params) {
     }
 
     snake.unshift(newHead);
+    context.fillStyle = "white";
+    context.font = "38px Changa One";
+    context.fillText(score, 16, 32);
     
 }
 
 
 //iniciar function
-let game = setInterval(startGame, 100);
+let game = setInterval(startGame, 190);
