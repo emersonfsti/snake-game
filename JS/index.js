@@ -1,17 +1,166 @@
-const canvas =  document.getElementById('game');
-const ctx = canvas.getContext('2d');
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+document.body.addEventListener("keydown", keyDown);
+
+class SnakePart {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+}
 
 let speed = 7;
 
-function drawGame (){
+let tileCount = 20;
+let tileSize = canvas.width / tileCount - 2;
+let headX = 10;
+let headY = 10;
+const SnakeParts = [];
+let tailLength = 2;
+
+// Maça
+let appleX = 5;
+let appleY = 5;
+
+// Velocidade
+let xVelocity = 0;
+let yVelocity = 0;
+
+// Placar
+let score = 0;
+
+// Loop do Jogo
+function drawGame() {
+  changeSnakePosition();
+  let result = isGameOver();
+  if(result){
+    return;
+  }
+
   clearScreen();
+  
+  checkAppleCollision();
+  drawApple();
+  drawSnake();
+
+  drawScore();
+
   setTimeout(drawGame, 1000 / speed);
 }
 
-function clearScreen(){
+function isGameOver(){
+  let gameOver = false;
+  if(yVelocity === 0 && xVelocity === 0){
+    return false;
+  }
 
-  ctx.fillStyle = 'black';
-  ctx.fillRect(0,0, canvas.width, canvas.height);
+  // walls
+  if(headX < 0){
+    gameOver = true;
+  }
+  else if(headX === tileCount){
+    gameOver = true;
+  }
+  else if(headY <0 ){
+    gameOver = true;
+  }
+
+  else if(headY === tileCount){
+    gameOver = true;
+  }
+
+  for(let i = 0; i < SnakeParts.length; i++){
+    let part = SnakeParts[i];
+    if(part.x === headX && part.y === headY){
+      gameOver = true;
+      break;
+    }
+  }
+
+  if (gameOver) {
+    ctx.fillStyle = "white";
+    ctx.font = "50px Verdana";
+    ctx.fillText("Game Over!" , canvas.width / 6.5 , canvas.height /2);
+    ctx.fillText("Score:" + score + "pts", canvas.width / 6.5 , canvas.height /1.5);
+
+  }
+
+  return gameOver;
+
+}
+
+function drawScore(){
+  ctx.fillStyle = "white";
+  ctx.font = "10px Verdana";
+  ctx.fillText("Score: " + score, canvas.width - 50, 10);
+
+}
+
+function clearScreen() {
+  ctx.fillStyle = "black";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+function drawSnake() {
+  ctx.fillStyle = "green";
+  for (let i = 0; i < SnakeParts.length; i++) {
+    let part = SnakeParts[i];
+    ctx.fillRect(part.x * tileCount, part.y * tileCount, tileSize, tileSize);
+  }
+
+  SnakeParts.push(new SnakePart(headX, headY));
+  if (SnakeParts.length > tailLength) {
+    SnakeParts.shift();
+  }
+
+  ctx.fillStyle = "orange";
+  ctx.fillRect(headX * tileCount, headY * tileCount, tileSize, tileSize);
+}
+
+function drawApple() {
+  ctx.fillStyle = "red";
+  ctx.fillRect(appleX * tileCount, appleY * tileCount, tileSize, tileSize);
+}
+
+function checkAppleCollision() {
+  if (appleX === headX && appleY == headY) {
+    appleX = Math.floor(Math.random() * tileCount);
+    appleY = Math.floor(Math.random() * tileCount);
+    tailLength++;
+    score++;
+  }
+}
+
+function changeSnakePosition() {
+  headX = headX + xVelocity;
+  headY = headY + yVelocity;
+}
+
+function keyDown(event) {
+  // up snake
+  if (event.keyCode == 38) {
+    if (yVelocity == 1) return;
+    yVelocity = -1;
+    xVelocity = 0;
+  }
+  // down snake
+  if (event.keyCode == 40) {
+    if (yVelocity == -1) return;
+    yVelocity = 1;
+    xVelocity = 0;
+  }
+  // left snake
+  if (event.keyCode == 37) {
+    if (xVelocity == 1) return;
+    yVelocity = 0;
+    xVelocity = -1;
+  }
+  // right snake
+  if (event.keyCode == 39) {
+    if (xVelocity == -1) return;
+    yVelocity = 0;
+    xVelocity = 1;
+  }
 }
 
 drawGame();
