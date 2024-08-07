@@ -31,11 +31,20 @@ let score = 0;
 // Ranking
 let highScores = JSON.parse(localStorage.getItem("highScores")) || [];
 
+let gameOver = false;
+
 function drawGame() {
+  if (gameOver) {
+    showGameOverScreen();
+    return;
+  }
+
   changeSnakePosition();
   let result = isGameOver();
   if (result) {
+    gameOver = true;
     updateHighScores();
+    showGameOverScreen();
     return;
   }
 
@@ -43,61 +52,43 @@ function drawGame() {
   checkAppleCollision();
   drawApple();
   drawSnake();
-  drawScore();
-  drawHighScores();
+  updateScore();
+  updateHighScoresDisplay();
 
   setTimeout(drawGame, 1000 / speed);
 }
 
 function isGameOver() {
-  let gameOver = false;
   if (yVelocity === 0 && xVelocity === 0) {
     return false;
   }
 
   // walls
   if (headX < 0 || headX >= tileCount || headY < 0 || headY >= tileCount) {
-    gameOver = true;
+    return true;
   }
 
   for (let i = 0; i < SnakeParts.length; i++) {
     let part = SnakeParts[i];
     if (part.x === headX && part.y === headY) {
-      gameOver = true;
-      break;
+      return true;
     }
   }
 
-  if (gameOver) {
-    ctx.fillStyle = "white";
-    ctx.font = "50px Verdana";
-    ctx.fillText("Game Over!", canvas.width / 6.5, canvas.height / 2);
-    ctx.fillText(
-      "Score: " + score + "pts",
-      canvas.width / 6.5,
-      canvas.height / 1.5
-    );
-  }
-
-  return gameOver;
+  return false;
 }
 
-function drawScore() {
-  ctx.fillStyle = "white";
-  ctx.font = "10px Verdana";
-  ctx.fillText("Score: " + score, canvas.width - 50, 10);
+function updateScore() {
+  document.getElementById("score").textContent = "Score: " + score;
 }
 
-function drawHighScores() {
-  ctx.fillStyle = "white";
-  ctx.font = "10px Verdana";
-  ctx.fillText("High Scores:", canvas.width - 120, 30);
+function updateHighScoresDisplay() {
+  const highScoresList = document.getElementById("highScores");
+  highScoresList.innerHTML = "High Scores:";
   highScores.forEach((highScore, index) => {
-    ctx.fillText(
-      `${index + 1}. ${highScore}`,
-      canvas.width - 120,
-      40 + index * 10
-    );
+    const listItem = document.createElement("li");
+    listItem.textContent = `${index + 1}. ${highScore}`;
+    highScoresList.appendChild(listItem);
   });
 }
 
@@ -109,12 +100,12 @@ function updateHighScores() {
 }
 
 function clearScreen() {
-  ctx.fillStyle = "black";
+  ctx.fillStyle = "#ccffcc"; // verde claro
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
 function drawSnake() {
-  ctx.fillStyle = "green";
+  ctx.fillStyle = "#006400"; // verde escuro
   for (let i = 0; i < SnakeParts.length; i++) {
     let part = SnakeParts[i];
     ctx.fillRect(part.x * tileCount, part.y * tileCount, tileSize, tileSize);
@@ -125,7 +116,7 @@ function drawSnake() {
     SnakeParts.shift();
   }
 
-  ctx.fillStyle = "orange";
+  ctx.fillStyle = "black"; // cabeça da cobra em amarelo
   ctx.fillRect(headX * tileCount, headY * tileCount, tileSize, tileSize);
 }
 
@@ -149,6 +140,11 @@ function changeSnakePosition() {
 }
 
 function keyDown(event) {
+  if (gameOver) {
+    resetGame();
+    return;
+  }
+
   // up snake
   if (event.keyCode == 38) {
     if (yVelocity == 1) return;
@@ -173,6 +169,35 @@ function keyDown(event) {
     yVelocity = 0;
     xVelocity = 1;
   }
+}
+
+function showGameOverScreen() {
+  ctx.fillStyle = "black"; // texto preto
+  ctx.font = "50px Verdana";
+  ctx.fillText("Game Over!", canvas.width / 6.5, canvas.height / 2);
+  ctx.fillText(
+    "Score: " + score + "pts",
+    canvas.width / 6.5,
+    canvas.height / 1.5
+  );
+  ctx.font = "20px Verdana";
+  ctx.fillText(
+    "Press any key to restart",
+    canvas.width / 6.5,
+    canvas.height / 1.2
+  );
+}
+
+function resetGame() {
+  headX = 10;
+  headY = 10;
+  SnakeParts.length = 0;
+  tailLength = 2;
+  xVelocity = 0;
+  yVelocity = 0;
+  score = 0;
+  gameOver = false;
+  drawGame();
 }
 
 drawGame();

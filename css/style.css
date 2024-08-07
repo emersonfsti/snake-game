@@ -3,9 +3,10 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #f0f0f0;
+  background-color: #000000;
   margin: 0;
   font-family: Arial, sans-serif;
+  color: white;
 }
 
 .container {
@@ -14,15 +15,30 @@ body {
 
 h1 {
   margin-bottom: 20px;
-  color: #333;
+  color: white;
 }
 
 canvas {
   border: 2px solid #333;
-  background-color: #fff;
+  background-color: #ccffcc; /* verde claro */
+}
+
+#scoreBoard {
+  background-color: #333333; /* cinza */
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 20px;
+}
+
+#scoreBoard p,
+#scoreBoard ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 p {
   margin-top: 20px;
-  color: #666;
+  color: white;
 }
